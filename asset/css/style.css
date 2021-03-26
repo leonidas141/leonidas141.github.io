@@ -115,7 +115,7 @@ body{
 }
 
 .box7split{
-    width: 5%;
+    width: 10%;
     float: right;
     height: 100%;
     /* border: 1px solid white; */
@@ -133,7 +133,53 @@ body{
 }
 
 .box7split a:hover{
-    color: red;
+    color: grey;
+}
+
+.box7hp{
+    width: 5%;
+    float: left;
+    height: 100%;
+    /* border: 1px solid white; */
+    /* box-sizing: border-box; */
+    text-align: center;
+}
+
+.box7hp a{
+    text-align: center;
+    line-height: 40px;
+    text-decoration: none;
+    color: white;
+    font-weight: bolder;
+    font-size: 15px;
+}
+
+.box7hp a:hover{
+    color: grey;
+}
+
+.maintext{
+    width: 80%;
+    /* float: left; */
+    height: 100%;
+    margin-left: 10%;
+    margin-right: 10%;
+    /* border: 1px solid white; */
+    /* box-sizing: border-box; */
+    text-align: left;
+}
+
+.maintext a{
+    text-align: center;
+    /* line-height: 40px; */
+    text-decoration: none;
+    color: white;
+    font-weight: bolder;
+    font-size: 15px;
+}
+
+.maintext a:hover{
+    color: grey;
 }
 
 .wechat{
