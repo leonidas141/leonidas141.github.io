@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="Pragma" content="no-cache">
+	<meta http-equiv="Cache-Control" content="no-cache">
+	<meta http-equiv="Expires" content="0">
+    
+	<title>clock</title>
+	<style>	
+		@font-face {
+			font-family: 'Oswald';
+			font-style: normal;
+			font-weight: 700;
+			font-display: swap;
+			src: url(lcd-7.woff2) format('woff2');
+		}
+        body {
+			color: #000000;
+			margin: 0px;
+			background-color: #ffffff;
+			font-family: Arial,sans-serif;
+        }
+        .app {
+			position: relative;
+        }
+        .time {
+			width: 100%;
+			margin: 100px 0px 30px 10px;
+			text-align: center;
+			font-size: 6rem;
+			font-family: 'Oswald', sans-serif;
+			font-weight: 700;
+        }
+        .date {
+			width: 100%;
+			margin: 10px 0px 0px 0px;
+			font-size: 3rem;
+			font-weight: bold;
+        }	
+		#date {
+			position: absolute;
+			left: 20px;
+			}
+			
+		#week {
+			position: absolute;
+			right: 20px;
+		}
+		
+		.msg {
+			margin-top: 10px;
+			width: 100%;
+			text-align: left;
+			font-size: 1.5rem;
+        }
+		table {
+			width: 100%;
+			font-size: 1.5rem;
+			text-align: center;
+		}
+    </style>
+</head>
+<body>
+	 <div class="app" id="app">
+	   <div class="date">
+          <span id="date">04月19日</span> &nbsp; <span id="week">星期日</span>
+      </div>
+      <div class="time" id="time">16:07</div>
+	  
+	  <table border="1">
+		  <tr>
+			<td id = "tmp">温度：25 ℃</td>
+			<td rowspan="4"><img src="bw-128/00.png" id = "code"/> </td>
+			<td id="wind_txt">东南风</td>
+		  </tr>
+		  <tr>
+			<td id="hum">湿度：92%</td>
+			<td id="wind_sc">1级</td>
+		  </tr>
+		  <tr>
+			<td id="pcpn">降水：188.0mm</td>
+			<td id="comf">体感：舒适</td>
+		  </tr>
+		  <tr>
+			<td id="pres">气压：960 kPa</td>
+			 <td id="drsg">穿衣：舒适</td>
+		  </tr>
+		  <tr>
+			<td id="aqi">空气：优（32）</td>
+			<td id="txt">阴</td>
+			<td id="uv">紫外线：最弱</td>
+		  </tr>
+	</table>
+    
+
+	  <div class="msg">
+          <p id="msg">&nbsp;&nbsp;</p> 
+      </div>
+    </div>
+    
+    <script>
+	  function setwether()	{
+		var xmlhttp = new XMLHttpRequest();
+		xmlhttp.onreadystatechange=function() {
+		  if (xmlhttp.readyState==4 && xmlhttp.status==200)	{
+			document.getElementById("msg").innerHTML="";
+			var res = JSON.parse(xmlhttp.responseText);
+			if (res.status != "ok") {
+				return;
+			}
+			
+			now = res.now;
+			document.getElementById("code").src = "bw-128/" + now.code + ".png";
+			document.getElementById("hum").innerHTML = "湿度：" + now.hum + "%";
+			document.getElementById("pcpn").innerHTML = "降水：" + now.pcpn + "mm";
+			document.getElementById("pres").innerHTML = "气压：" + now.pres + "hPa";
+			document.getElementById("tmp").innerHTML = "温度：" + now.tmp + "℃"
+			document.getElementById("txt").innerHTML = now.txt;
+			document.getElementById("wind_txt").innerHTML = now.wind_dir_txt;
+			document.getElementById("wind_sc").innerHTML = "风力：" + now.wind_sc;
+
+			aqi = res.aqi;	
+			document.getElementById("aqi").innerHTML = "空气：" + aqi.txt + "(" + aqi.aqi + ")";
+			
+			lifestyle = res.lifestyleForecast.lifestyle[0];
+			document.getElementById("comf").innerHTML = "体感：" + lifestyle.comf.brf;
+			document.getElementById("drsg").innerHTML = "穿衣：" + lifestyle.drsg.brf;
+			document.getElementById("uv").innerHTML = "紫外线：" + lifestyle.uv.brf;
+			
+			msg = "&nbsp<\/br>" + lifestyle.comf.txt + "<\/br>" + lifestyle.drsg.txt + "<\/br>" + lifestyle.uv.txt;			
+			document.getElementById("msg").innerHTML = msg;
+		  }
+		}
+		xmlhttp.open("GET","https://apip.weatherdt.com/plugin/data?key=FV7bWSDGln&lang=zh&location=101100101",true);
+		xmlhttp.send();
+	  }
+      function settime() {
+        var date = new Date();
+		setTimeout("settime()", (60 - date.getSeconds())*1000)
+		console.log("settime:" + date)	
+		
+        var utc8DiffMinutes = date.getTimezoneOffset() + 480;
+        date.setMinutes(date.getMinutes() + utc8DiffMinutes);
+
+        var timeString = ('0' + date.getHours()).slice(-2) + ':' + ('0' + date.getMinutes()).slice(-2);
+        var dateString = date.getFullYear() + '年' + ('0' + (date.getMonth() + 1)).slice(-2) + '月' + ('0' + date.getDate()).slice(-2) + '日';
+        var weekList = ['日', '一', '二', '三', '四', '五', '六'];
+        var weekString = '星期' + weekList[date.getDay()];
+
+        document.getElementById("time").innerHTML = timeString
+        document.getElementById("date").innerHTML = dateString
+        document.getElementById("week").innerHTML = weekString
+
+      }	  
+	  function refresh() {
+        setwether()
+		var date = new Date();
+		setTimeout("refresh()", (30 - date.getMinutes()%30)*60000 - date.getSeconds()*1000)
+		console.log("refresh:" + date)
+		document.body.style.backgroundColor = '#000'
+		setTimeout("document.body.style.backgroundColor = '#fff'", 500);
+	  }
+	  window.onkeydown = function() {
+	    event.returnValue=false;
+	  }	  	  
+      settime()
+	  refresh()
+      //setInterval("settime()", 60 * 1000)
+	  //setInterval("refresh()", 600 * 1000)
+    </script>
+</body>
+</html>
